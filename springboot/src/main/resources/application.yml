@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: zsxq-sdk-demo
+
+zsxq:
+  token: 864A699C-310D-4593-AA9A-06EDA47472F8_C7FC4C169922C77C
+  group-id: 88885121521552
+  timeout: 10000
+  retry-count: 3
+  retry-delay: 1000
