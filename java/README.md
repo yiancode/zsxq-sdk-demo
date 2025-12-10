@@ -73,10 +73,10 @@ GET /api/zsxq/user/self
   "success": true,
   "message": "操作成功",
   "data": {
-    "uid": "184444848828412",
-    "name": "易安",
+    "uid": "123456789012345",
+    "name": "用户名",
     "avatarUrl": "https://...",
-    "location": "广东"
+    "location": "地区"
   }
 }
 ```
@@ -165,7 +165,7 @@ curl http://localhost:8080/api/zsxq/user/self
 curl http://localhost:8080/api/zsxq/groups
 
 # 获取星球详情
-curl http://localhost:8080/api/zsxq/groups/88885121521552
+curl http://localhost:8080/api/zsxq/groups/{groupId}
 ```
 
 ## 注意事项

@@ -11,12 +11,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.zsxq</groupId>
-    <artifactId>zsxq-sdk-demo-springboot</artifactId>
+    <groupId>com.zsxq.demo</groupId>
+    <artifactId>zsxq-sdk-demo</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>zsxq-sdk-demo-springboot</name>
+    <name>zsxq-sdk-demo</name>
     <description>知识星球 SDK Spring Boot 示例项目</description>
 
     <properties>
@@ -38,14 +38,13 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- zsxq-sdk (本地依赖) -->
+        <!-- zsxq-sdk -->
         <dependency>
-            <groupId>com.zsxq</groupId>
+            <groupId>io.github.yiancode</groupId>
             <artifactId>zsxq-sdk</artifactId>
             <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../../zsxq-sdk/packages/java/target/zsxq-sdk-1.0.0.jar</systemPath>
         </dependency>
+
 
         <!-- HTTP Client (SDK dependency) -->
         <dependency>
@@ -75,7 +74,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <includeSystemScope>true</includeSystemScope>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
