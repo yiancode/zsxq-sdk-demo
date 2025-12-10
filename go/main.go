@@ -69,7 +69,7 @@ func testUsers(ctx context.Context, client *zsxq.Client) {
 		return
 	}
 	fmt.Printf("✓ Self() - 当前用户: %s\n", self.Name)
-	fmt.Printf("  用户ID: %d\n", self.UserID)
+	fmt.Printf("  用户ID: %s\n", self.UserID)
 	fmt.Printf("  头像: %s\n", self.AvatarURL)
 
 	// 获取用户统计

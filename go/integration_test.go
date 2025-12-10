@@ -8,6 +8,7 @@ import (
 	"time"
 
 	zsxq "github.com/zsxq-sdk/zsxq-sdk-go"
+	"github.com/zsxq-sdk/zsxq-sdk-go/model"
 	"github.com/zsxq-sdk/zsxq-sdk-go/request"
 )
 
@@ -62,8 +63,8 @@ func TestUsersSelf(t *testing.T) {
 	if user == nil {
 		t.Fatal("用户对象不应为 nil")
 	}
-	if user.UserID == 0 {
-		t.Error("用户 ID 不应为 0")
+	if user.UserID == "" {
+		t.Error("用户 ID 不应为空")
 	}
 	if user.Name == "" {
 		t.Error("用户名不应为空")
@@ -72,7 +73,7 @@ func TestUsersSelf(t *testing.T) {
 		t.Error("头像 URL 不应为空")
 	}
 
-	t.Logf("✓ 当前用户: %s (ID: %d)", user.Name, user.UserID)
+	t.Logf("✓ 当前用户: %s (ID: %s)", user.Name, user.UserID)
 }
 
 func TestUsersGetStatistics(t *testing.T) {
@@ -184,10 +185,10 @@ func TestGroupsDataConsistency(t *testing.T) {
 		t.Fatalf("获取星球列表失败: %v", err)
 	}
 
-	var fromList *zsxq.Group
-	for _, g := range groups {
-		if g.GroupID == testGroupID {
-			fromList = g
+	var fromList *model.Group
+	for i := range groups {
+		if groups[i].GroupID == testGroupID {
+			fromList = &groups[i]
 			break
 		}
 	}
