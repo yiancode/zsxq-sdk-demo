@@ -134,8 +134,8 @@ func TestGroupsList(t *testing.T) {
 		if group.Name == "" {
 			t.Error("星球名称不应为空")
 		}
-		if group.MemberCount < 0 {
-			t.Errorf("成员数量应该 >= 0, got %d", group.MemberCount)
+		if group.MemberCount != nil && *group.MemberCount < 0 {
+			t.Errorf("成员数量应该 >= 0, got %d", *group.MemberCount)
 		}
 	}
 
@@ -162,7 +162,11 @@ func TestGroupsGet(t *testing.T) {
 		t.Error("星球类型不应为空")
 	}
 
-	t.Logf("✓ 星球详情: %s (成员数: %d)", group.Name, group.MemberCount)
+	if group.MemberCount != nil {
+		t.Logf("✓ 星球详情: %s (成员数: %d)", group.Name, *group.MemberCount)
+	} else {
+		t.Logf("✓ 星球详情: %s (成员数: null)", group.Name)
+	}
 }
 
 func TestGroupsGetStatistics(t *testing.T) {

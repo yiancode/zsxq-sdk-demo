@@ -104,7 +104,11 @@ func testGroups(ctx context.Context, client *zsxq.Client, groupID int64) {
 		return
 	}
 	fmt.Printf("✓ Get() - 星球详情: %s\n", group.Name)
-	fmt.Printf("  成员数: %d\n", group.MemberCount)
+	if group.MemberCount != nil {
+		fmt.Printf("  成员数: %d\n", *group.MemberCount)
+	} else {
+		fmt.Printf("  成员数: null\n")
+	}
 	fmt.Printf("  类型: %s\n", group.Type)
 
 	// 获取星球统计
