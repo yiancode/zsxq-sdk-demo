@@ -38,13 +38,19 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Boot Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- zsxq-sdk -->
         <dependency>
             <groupId>io.github.yiancode</groupId>
             <artifactId>zsxq-sdk</artifactId>
             <version>1.0.0</version>
         </dependency>
-
 
         <!-- HTTP Client (SDK dependency) -->
         <dependency>
