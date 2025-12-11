@@ -6,19 +6,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 知识星球 SDK 多语言示例项目，展示 [zsxq-sdk](https://github.com/yiancode/zsxq-sdk) 的使用方式。包含 Java、TypeScript、Go、Python 四种语言实现。
 
-**重要**: SDK 依赖通过本地路径引用 (`../../zsxq-sdk/packages/`)，需确保 zsxq-sdk 仓库已克隆到同级目录。
+### SDK 依赖方式
+
+| 语言 | 依赖方式 |
+|------|---------|
+| TypeScript | 本地路径 `../../zsxq-sdk/packages/typescript` |
+| Go | 本地路径 replace `../../zsxq-sdk/packages/go` |
+| Java | Maven Central `io.github.yiancode:zsxq-sdk:1.0.0` |
+| Python | 需手动安装本地 SDK |
+
+**注意**: TypeScript 和 Go 需确保 zsxq-sdk 仓库已克隆到同级目录。
 
 ## 常用命令
 
-### TypeScript (主要开发语言)
+### TypeScript
 ```bash
 cd typescript
 npm install
 npm start                    # 运行 demo
 npm test                     # 所有测试
-npm run test:unit           # 仅单元测试 (*.unit.test.ts)
-npm run test:integration    # 仅集成测试 (*.integration.test.ts)
+npm run test:unit           # 仅单元测试
+npm run test:integration    # 仅集成测试
 npm run test:cov            # 测试覆盖率
+# 运行单个测试文件
+npx jest tests/users.unit.test.ts
 ```
 
 ### Go
@@ -28,6 +39,8 @@ go mod download
 go run main.go              # 运行 demo
 go test ./... -v            # 所有测试
 go test -cover ./...        # 测试覆盖率
+# 运行单个测试
+go test -v -run TestIntegration
 ```
 
 ### Python
@@ -37,19 +50,20 @@ pip install -r requirements.txt
 python demo.py              # 运行 demo
 pytest tests/ -v            # 所有测试
 pytest --cov=. tests/       # 测试覆盖率
+# 运行单个测试
+pytest tests/test_integration.py -v
 ```
 
 ### Java (Spring Boot)
 ```bash
 cd java
-./start.sh                  # 启动应用
+./start.sh                  # 启动应用 (端口 8080)
 mvn spring-boot:run         # 或使用 Maven
 ./test-api.sh               # 测试 API 端点
 ```
 
 ## 环境变量
 
-所有语言实现都需要:
 ```bash
 export ZSXQ_TOKEN="your-authorization-token"   # 必需
 export ZSXQ_GROUP_ID="your-group-id"           # 必需
@@ -61,28 +75,34 @@ Token 获取: 访问 https://wx.zsxq.com → F12 → Network → 筛选 api.zsxq
 
 ## 架构说明
 
-每种语言实现相同的 5 个 API 模块:
+每种语言实现相同的 5 个 API 模块: Users、Groups、Topics、Checkins、Dashboard。
 
-| 模块 | 功能 | 核心方法 |
-|------|------|----------|
-| Users | 用户信息 | self, getStatistics |
-| Groups | 星球管理 | list, get, getStatistics |
-| Topics | 话题管理 | list, get |
-| Checkins | 打卡项目 | list, get, getStatistics, getRankingList |
-| Dashboard | 数据面板 | getOverview, getIncomes |
+### 客户端构建模式 (Builder Pattern)
 
-### 客户端构建模式
+```typescript
+// TypeScript
+new ZsxqClientBuilder().setToken(token).setTimeout(10000).setRetry(3).build()
 
-所有语言使用 Builder 模式创建客户端:
-- TypeScript: `new ZsxqClientBuilder().setToken(token).build()`
-- Go: `zsxq.NewClientBuilder().SetToken(token).MustBuild()`
-- Python: `ZsxqClientBuilder().set_token(token).build()` (异步上下文管理器)
-- Java: 通过 Spring Bean 配置
+// Go
+zsxq.NewClientBuilder().SetToken(token).MustBuild()
 
-### 测试结构
+// Python (异步上下文管理器)
+ZsxqClientBuilder().set_token(token).build()
+
+// Java (Spring Bean 注入)
+new ZsxqClientBuilder().token(token).timeout(timeout).retry(count, delay).build()
+```
+
+### Java 特有架构
+
+Spring Boot 分层结构:
+- `config/ZsxqConfig.java` - ZsxqClient Bean 配置
+- `config/ZsxqProperties.java` - 配置属性映射 (`zsxq.*`)
+- `controller/ZsxqController.java` - REST API 端点
+- `service/ZsxqService.java` - 业务逻辑封装
+
+### 测试命名约定
 
 TypeScript 测试分为:
-- 单元测试 (`*.unit.test.ts`): 各模块独立测试
-- 集成测试 (`*.integration.test.ts`): 跨模块工作流测试
-
-运行测试需要有效的环境变量配置。
+- `*.unit.test.ts` - 各模块独立测试
+- `*.integration.test.ts` - 跨模块工作流测试
