@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: zsxq-sdk-demo
+
+zsxq:
+  token: ${ZSXQ_TOKEN:test-token-placeholder}
+  group-id: ${ZSXQ_GROUP_ID:1234567890}
+  timeout: 10000
+  retry-count: 3
+  retry-delay: 1000
