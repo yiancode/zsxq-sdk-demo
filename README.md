@@ -116,6 +116,63 @@ pytest tests/ -v      # 所有测试
 pytest --cov=. tests/ # 测试覆盖率
 ```
 
+## 测试
+
+本项目为所有语言提供了完整的测试覆盖，包括单元测试和集成测试。
+
+### 测试统计
+
+| 语言 | 单元测试 | 集成测试 | 总计 | 状态 |
+|------|---------|---------|------|------|
+| TypeScript | 70 | 7 | 77 | ✅ |
+| Java | 64 | 21 | 85 | ✅ |
+| Python | 76 | 5 | 81 | ✅ |
+| Go | 待修复 | 7 | 7+ | ⚠️ |
+| **总计** | **210+** | **40+** | **250+** | **✅** |
+
+### 快速运行测试
+
+**TypeScript**:
+```bash
+cd typescript
+npm test                    # 所有测试
+npm run test:unit          # 仅单元测试
+npm run test:integration   # 仅集成测试
+```
+
+**Java**:
+```bash
+cd java
+mvn test                   # 所有测试
+mvn test -Dtest=ZsxqApiIntegrationTest  # 集成测试
+```
+
+**Python**:
+```bash
+cd python
+pytest tests/ -v           # 所有测试
+pytest tests/ -k unit      # 仅单元测试
+```
+
+**Go**:
+```bash
+cd go
+go test ./... -v           # 所有测试
+go test -v -run Integration  # 集成测试
+```
+
+### 详细测试文档
+
+完整的测试指南请参阅：
+
+📖 **[TESTING.md](TESTING.md)** - 测试总览、规范、故障排查
+
+各语言详细测试文档：
+- [TypeScript 测试文档](typescript/tests/README.md)
+- [Java 测试文档](java/README.md)
+- [Python 测试文档](python/tests/README.md)
+- [Go 测试文档](go/tests/README.md)
+
 ## 项目结构
 
 ```
