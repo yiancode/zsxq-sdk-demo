@@ -9,6 +9,8 @@ tests/
 ├── topics.unit.test.ts         # 话题模块单元测试
 ├── checkins.unit.test.ts       # 打卡模块单元测试
 ├── dashboard.unit.test.ts      # 数据面板模块单元测试
+├── ranking.unit.test.ts        # 排行榜模块单元测试
+├── misc.unit.test.ts           # 杂项功能模块单元测试
 └── integration.test.ts         # 集成测试
 ```
 
@@ -106,6 +108,25 @@ npm run test:cov
 - ✓ getOverview() - 获取星球概览
 - ✓ getIncomes() - 获取收入概览
 - ✓ 权限验证（星主权限）
+
+### Ranking 模块
+- ✓ getGroupRanking() - 获取星球排行榜
+- ✓ getGroupRankingStats() - 获取星球排行统计
+- ✓ getScoreRanking() - 获取积分排行榜
+- ✓ getMyScoreStats() - 获取我的积分统计
+- ✓ getScoreboardSettings() - 获取积分榜设置
+- ✓ getInvitationRanking() - 获取邀请排行榜
+- ✓ getContributionRanking() - 获取贡献排行榜
+- ✓ 参数验证（type, index）
+- ✓ 数据一致性验证
+
+### Misc 模块
+- ✓ getGlobalConfig() - 获取全局配置
+- ✓ getActivities() - 获取动态列表
+- ✓ getActivities() 带参数 - 获取特定动态
+- ✓ getPkGroup() - 获取 PK 群组详情
+- ✓ 参数验证（scope, count）
+- ✓ 边界条件测试
 
 ### 集成测试
 - ✓ 客户端初始化和配置
