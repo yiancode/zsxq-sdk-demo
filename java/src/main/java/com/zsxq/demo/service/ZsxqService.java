@@ -674,6 +674,23 @@ public class ZsxqService {
     }
 
     /**
+     * 获取全局星球排行榜
+     *
+     * @param type 排行类型: group_sales_list(畅销榜), new_star_list(新星榜),
+     *             paid_group_active_list(活跃榜), group_fortune_list(财富榜)
+     * @param count 返回数量
+     * @return 排行数据
+     */
+    public Map<String, Object> getGlobalRanking(String type, int count) {
+        try {
+            return zsxqClient.ranking().getGlobalRanking(type, count);
+        } catch (ZsxqException e) {
+            log.error("获取全局星球排行榜失败: type={}, count={}", type, count, e);
+            throw new RuntimeException("获取全局星球排行榜失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * 获取星球排行统计
      */
     public RankingStatistics getGroupRankingStats(long groupId) {

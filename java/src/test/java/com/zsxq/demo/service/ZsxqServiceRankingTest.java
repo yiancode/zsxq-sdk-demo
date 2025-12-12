@@ -61,6 +61,22 @@ public class ZsxqServiceRankingTest {
     }
 
     @Test
+    public void testGetGlobalRanking() {
+        String type = "group_sales_list";
+        int count = 10;
+        Map<String, Object> mockResult = new HashMap<>();
+        mockResult.put("ranking_list", Arrays.asList("item1", "item2"));
+
+        when(rankingRequest.getGlobalRanking(type, count)).thenReturn(mockResult);
+
+        Map<String, Object> result = zsxqService.getGlobalRanking(type, count);
+
+        assertNotNull(result);
+        assertEquals(result.get("ranking_list"), Arrays.asList("item1", "item2"));
+        verify(rankingRequest).getGlobalRanking(type, count);
+    }
+
+    @Test
     public void testGetGroupRankingStats() {
         long groupId = 200L;
         RankingStatistics mockStats = new RankingStatistics();
