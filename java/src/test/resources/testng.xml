@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="ZsxqSdkDemo Test Suite" verbose="1">
+    <test name="Unit Tests">
+        <packages>
+            <package name="com.zsxq.demo.service"/>
+        </packages>
+    </test>
+    <test name="Integration Tests">
+        <packages>
+            <package name="com.zsxq.demo.integration"/>
+        </packages>
+    </test>
+</suite>

@@ -57,9 +57,13 @@ pytest tests/test_integration.py -v
 ### Java (Spring Boot)
 ```bash
 cd java
+mvn clean compile           # 编译项目
+mvn test                    # 运行单元测试
 ./start.sh                  # 启动应用 (端口 8080)
 mvn spring-boot:run         # 或使用 Maven
 ./test-api.sh               # 测试 API 端点
+# 运行单个测试类
+mvn test -Dtest=ZsxqApiIntegrationTest
 ```
 
 ## 环境变量
@@ -98,8 +102,9 @@ new ZsxqClientBuilder().token(token).timeout(timeout).retry(count, delay).build(
 Spring Boot 分层结构:
 - `config/ZsxqConfig.java` - ZsxqClient Bean 配置
 - `config/ZsxqProperties.java` - 配置属性映射 (`zsxq.*`)
-- `controller/ZsxqController.java` - REST API 端点
-- `service/ZsxqService.java` - 业务逻辑封装
+- `controller/` - REST API 端点 (ZsxqController, DashboardController, TopicsController, CheckinsController)
+- `service/` - 业务逻辑封装 (ZsxqService, DashboardService, TopicsService, CheckinsService)
+- `model/ApiResponse.java` - 统一响应模型
 
 ### 测试命名约定
 
