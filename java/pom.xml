@@ -65,7 +65,7 @@
         <dependency>
             <groupId>io.github.yiancode</groupId>
             <artifactId>zsxq-sdk</artifactId>
-            <version>1.0.0</version>
+            <version>1.2.0</version>
         </dependency>
 
         <!-- HTTP Client (SDK dependency) -->
@@ -112,11 +112,20 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
+                    <!-- 启用 Byte Buddy 实验性支持以兼容 Java 21 -->
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
                 <dependencies>
+                    <!-- TestNG support -->
                     <dependency>
                         <groupId>org.apache.maven.surefire</groupId>
                         <artifactId>surefire-testng</artifactId>
+                        <version>3.2.3</version>
+                    </dependency>
+                    <!-- JUnit 5 support for Spring Boot integration tests -->
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
                         <version>3.2.3</version>
                     </dependency>
                 </dependencies>

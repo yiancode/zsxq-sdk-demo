@@ -5,6 +5,7 @@ import com.zsxq.demo.service.CheckinsService;
 import com.zsxq.sdk.model.Checkin;
 import com.zsxq.sdk.model.CheckinStatistics;
 import com.zsxq.sdk.model.RankingItem;
+import com.zsxq.sdk.request.CheckinsRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,6 +76,21 @@ public class CheckinsController {
         try {
             List<RankingItem> ranking = checkinsService.getRanking(groupId, checkinId);
             return ApiResponse.success(ranking);
+        } catch (Exception e) {
+            return ApiResponse.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 创建打卡项目（训练营）
+     */
+    @PostMapping("/groups/{groupId}")
+    public ApiResponse<Checkin> createCheckin(
+            @PathVariable Long groupId,
+            @RequestBody CheckinsRequest.CreateCheckinParams params) {
+        try {
+            Checkin checkin = checkinsService.createCheckin(groupId, params);
+            return ApiResponse.success(checkin);
         } catch (Exception e) {
             return ApiResponse.error(e.getMessage());
         }

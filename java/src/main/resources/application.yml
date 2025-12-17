@@ -6,8 +6,8 @@ spring:
     name: zsxq-sdk-demo
 
 zsxq:
-  token: ${ZSXQ_TOKEN:8099226E-77EE-4242-BE6C-3B236D73F99A_C7FC4C169922C77C}
-  group-id: ${ZSXQ_GROUP_ID:15555411412112}
+  token: ${ZSXQ_TOKEN:8D0689E0-C534-4673-BDF4-B4DE4B9C55C1_C7FC4C169922C77C}
+  group-id: ${ZSXQ_GROUP_ID:51115214421144}
   timeout: 10000
   retry-count: 3
   retry-delay: 1000

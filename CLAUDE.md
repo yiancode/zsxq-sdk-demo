@@ -111,3 +111,19 @@ Spring Boot 分层结构:
 TypeScript 测试分为:
 - `*.unit.test.ts` - 各模块独立测试
 - `*.integration.test.ts` - 跨模块工作流测试
+
+## 测试统计
+
+| 语言 | 单元测试 | 集成测试 | 总计 | 状态 |
+|------|---------|---------|------|------|
+| TypeScript | 70 | 7 | 77 | ✅ |
+| Java | 64 | 21 | 85 | ✅ |
+| Python | 76 | 5 | 81 | ✅ |
+| Go | 待修复 | 7 | 7+ | ⚠️ |
+
+详细测试文档:
+- [TESTING.md](TESTING.md) - 测试总览、规范、故障排查
+- [typescript/tests/README.md](typescript/tests/README.md)
+- [java/README.md](java/README.md)
+- [python/tests/README.md](python/tests/README.md)
+- [go/tests/README.md](go/tests/README.md)

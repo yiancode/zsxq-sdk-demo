@@ -562,6 +562,18 @@ public class ZsxqService {
     }
 
     /**
+     * 创建打卡项目（训练营）
+     */
+    public Checkin createCheckin(long groupId, CheckinsRequest.CreateCheckinParams params) {
+        try {
+            return zsxqClient.checkins().create(groupId, params);
+        } catch (ZsxqException e) {
+            log.error("创建打卡项目失败: groupId={}", groupId, e);
+            throw new RuntimeException("创建打卡项目失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * 获取我的打卡记录
      */
     public List<Topic> getMyCheckins(long groupId, long checkinId) {
@@ -681,6 +693,8 @@ public class ZsxqService {
      * @param count 返回数量
      * @return 排行数据
      */
+    // TODO: 此方法需要 SDK 升级到支持 getGlobalRanking 的版本
+    /*
     public Map<String, Object> getGlobalRanking(String type, int count) {
         try {
             return zsxqClient.ranking().getGlobalRanking(type, count);
@@ -689,6 +703,7 @@ public class ZsxqService {
             throw new RuntimeException("获取全局星球排行榜失败: " + e.getMessage(), e);
         }
     }
+    */
 
     /**
      * 获取星球排行统计

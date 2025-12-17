@@ -226,4 +226,54 @@ public class ZsxqServiceCheckinsTest {
         assertNotNull(result);
         verify(checkinsRequest).getMyStatistics(groupId, checkinId);
     }
+
+    @Test
+    public void testCreateCheckin() {
+        long groupId = 100L;
+        CheckinsRequest.CreateCheckinParams params = new CheckinsRequest.CreateCheckinParams()
+                .title("测试训练营")
+                .text("完成7天打卡")
+                .checkinDays(7)
+                .type("accumulated")
+                .showTopicsOnTimeline(false);
+
+        Checkin mockCheckin = new Checkin();
+        mockCheckin.setCheckinId(2001L);
+        mockCheckin.setName("测试训练营");
+
+        when(checkinsRequest.create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class)))
+                .thenReturn(mockCheckin);
+
+        Checkin result = zsxqService.createCheckin(groupId, params);
+
+        assertNotNull(result);
+        assertEquals(result.getCheckinId().longValue(), 2001L);
+        assertEquals(result.getName(), "测试训练营");
+        verify(checkinsRequest).create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class));
+    }
+
+    @Test
+    public void testCreateCheckinWithLongPeriod() {
+        long groupId = 200L;
+        CheckinsRequest.CreateCheckinParams params = new CheckinsRequest.CreateCheckinParams()
+                .title("长期训练营")
+                .text("持续打卡30天")
+                .checkinDays(30)
+                .type("continuous")
+                .showTopicsOnTimeline(true);
+
+        Checkin mockCheckin = new Checkin();
+        mockCheckin.setCheckinId(2002L);
+        mockCheckin.setName("长期训练营");
+
+        when(checkinsRequest.create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class)))
+                .thenReturn(mockCheckin);
+
+        Checkin result = zsxqService.createCheckin(groupId, params);
+
+        assertNotNull(result);
+        assertEquals(result.getCheckinId().longValue(), 2002L);
+        assertEquals(result.getName(), "长期训练营");
+        verify(checkinsRequest).create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class));
+    }
 }

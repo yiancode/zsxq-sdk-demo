@@ -73,4 +73,16 @@ public class CheckinsService {
             throw new RuntimeException("获取打卡排行榜失败: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * 创建打卡项目（训练营）
+     */
+    public Checkin createCheckin(long groupId, CheckinsRequest.CreateCheckinParams params) {
+        try {
+            return zsxqClient.checkins().create(groupId, params);
+        } catch (ZsxqException e) {
+            log.error("创建打卡项目失败: groupId={}", groupId, e);
+            throw new RuntimeException("创建打卡项目失败: " + e.getMessage(), e);
+        }
+    }
 }
