@@ -397,6 +397,36 @@ func TestCheckinsGetRankingList(t *testing.T) {
 	t.Logf("✓ 获取打卡排行榜成功: %d 个用户", len(ranking))
 }
 
+func TestRankingGetInvitationRanking(t *testing.T) {
+	withExtra := true
+	ranking, err := testClient.Ranking().GetInvitationRanking(ctx, testGroupID, &request.InvitationRankingOptions{
+		BeginTime: "2026-08-17T00:00:00.000+0800",
+		Count:     10,
+		WithExtra: &withExtra,
+	})
+	if err != nil {
+		t.Fatalf("获取邀请排行榜失败: %v", err)
+	}
+	if ranking == nil {
+		t.Fatal("邀请排行榜不应为 nil")
+	}
+	if len(ranking) > 0 {
+		if ranking[0].Rankings <= 0 {
+			t.Errorf("排名应该 > 0, got %d", ranking[0].Rankings)
+		}
+		if ranking[0].InviteesCount < 0 {
+			t.Errorf("邀请人数应该 >= 0, got %d", ranking[0].InviteesCount)
+		}
+		if ranking[0].Member == nil {
+			t.Error("排行项应包含 member")
+		}
+		t.Logf("✓ 邀请排行榜: %d 人, 第1名=%s 邀请 %d 人",
+			len(ranking), ranking[0].Member.Name, ranking[0].InviteesCount)
+	} else {
+		t.Log("✓ 邀请排行榜为空列表")
+	}
+}
+
 // ============================================================
 // Dashboard 模块测试
 // ============================================================

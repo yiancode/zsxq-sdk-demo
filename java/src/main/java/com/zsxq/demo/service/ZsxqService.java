@@ -6,11 +6,15 @@ import com.zsxq.sdk.exception.ZsxqException;
 import com.zsxq.sdk.model.*;
 import com.zsxq.sdk.request.CheckinsRequest;
 import com.zsxq.sdk.request.MiscRequest;
+import com.zsxq.sdk.request.RankingRequest;
 import com.zsxq.sdk.request.TopicsRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -693,8 +697,6 @@ public class ZsxqService {
      * @param count 返回数量
      * @return 排行数据
      */
-    // TODO: 此方法需要 SDK 升级到支持 getGlobalRanking 的版本
-    /*
     public Map<String, Object> getGlobalRanking(String type, int count) {
         try {
             return zsxqClient.ranking().getGlobalRanking(type, count);
@@ -703,7 +705,6 @@ public class ZsxqService {
             throw new RuntimeException("获取全局星球排行榜失败: " + e.getMessage(), e);
         }
     }
-    */
 
     /**
      * 获取星球排行统计
@@ -754,15 +755,81 @@ public class ZsxqService {
     }
 
     /**
-     * 获取邀请排行榜
+     * 获取邀请排行榜。
+     *
+     * App 日/周/月榜：begin_time + count=10 + with_extra=true（不传 end_time）。
+     * 自定义区间额外传 end_time，最大跨度 31 天。
      */
-    public List<RankingItem> getInvitationRanking(long groupId) {
+    public List<InvitationRankingItem> getInvitationRanking(
+            long groupId, String beginTime, String endTime, Integer count, Boolean withExtra) {
+        if (beginTime == null || beginTime.isBlank()) {
+            throw new IllegalArgumentException(
+                    "beginTime 为必填参数（ISO 8601，如 2026-08-22T00:00:00.000+0800）");
+        }
         try {
-            return zsxqClient.ranking().getInvitationRanking(groupId);
+            RankingRequest.InvitationRankingOptions options = new RankingRequest.InvitationRankingOptions()
+                    .beginTime(beginTime)
+                    .count(count != null ? count : 10)
+                    .withExtra(withExtra == null || withExtra);
+            if (endTime != null && !endTime.isBlank()) {
+                options.endTime(endTime);
+            }
+            return zsxqClient.ranking().getInvitationRanking(groupId, options);
         } catch (ZsxqException e) {
-            log.error("获取邀请排行榜失败: groupId={}", groupId, e);
+            log.error("获取邀请排行榜失败: groupId={}, beginTime={}, endTime={}", groupId, beginTime, endTime, e);
             throw new RuntimeException("获取邀请排行榜失败: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 按 App Tab 拉取邀请排行：daily / weekly / monthly / custom。
+     * custom 必须同时提供 beginTime、endTime。
+     */
+    public List<InvitationRankingItem> getInvitationRankingByPeriod(
+            long groupId, String period, String beginTime, String endTime) {
+        String normalized = period == null ? "weekly" : period.trim().toLowerCase();
+        switch (normalized) {
+            case "daily":
+            case "day":
+                return getInvitationRanking(groupId, startOfToday(), null, 10, true);
+            case "weekly":
+            case "week":
+                return getInvitationRanking(groupId, startOfThisWeek(), null, 10, true);
+            case "monthly":
+            case "month":
+                return getInvitationRanking(groupId, startOfThisMonth(), null, 20, true);
+            case "custom":
+                if (beginTime == null || beginTime.isBlank() || endTime == null || endTime.isBlank()) {
+                    throw new IllegalArgumentException("自定义区间必须同时提供 beginTime 和 endTime，最大跨度 31 天");
+                }
+                return getInvitationRanking(groupId, beginTime, endTime, 20, true);
+            default:
+                throw new IllegalArgumentException("period 仅支持 daily / weekly / monthly / custom");
+        }
+    }
+
+    private static final DateTimeFormatter ZSXQ_TIME =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXX")
+                    .withZone(ZoneId.of("Asia/Shanghai"));
+
+    private String startOfToday() {
+        return ZSXQ_TIME.format(ZonedDateTime.now(ZoneId.of("Asia/Shanghai")).toLocalDate()
+                .atStartOfDay(ZoneId.of("Asia/Shanghai")));
+    }
+
+    private String startOfThisWeek() {
+        ZonedDateTime start = ZonedDateTime.now(ZoneId.of("Asia/Shanghai"))
+                .toLocalDate()
+                .atStartOfDay(ZoneId.of("Asia/Shanghai"))
+                .with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+        return ZSXQ_TIME.format(start);
+    }
+
+    private String startOfThisMonth() {
+        return ZSXQ_TIME.format(ZonedDateTime.now(ZoneId.of("Asia/Shanghai"))
+                .toLocalDate()
+                .withDayOfMonth(1)
+                .atStartOfDay(ZoneId.of("Asia/Shanghai")));
     }
 
     /**

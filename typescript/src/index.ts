@@ -33,6 +33,7 @@ async function main() {
   await testTopics(client, groupIdNum);
   await testCheckins(client, groupIdNum);
   await testDashboard(client, groupIdNum);
+  await testRanking(client, groupIdNum);
 
   console.log(SEPARATOR);
   console.log('所有测试完成!');
@@ -204,6 +205,106 @@ async function testDashboard(client: ReturnType<typeof ZsxqClientBuilder.prototy
     if (error instanceof ZsxqException) {
       console.error('✗ 数据面板模块错误:', error.message);
       console.log('  (可能需要星主权限)');
+    } else {
+      throw error;
+    }
+  }
+}
+
+function formatZsxqTime(date: Date): string {
+  const pad = (n: number, w = 2) => String(n).padStart(w, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.000+0800`;
+}
+
+function startOfToday(): Date {
+  const d = new Date();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+}
+
+function startOfThisWeek(): Date {
+  const d = startOfToday();
+  const weekday = (d.getDay() + 6) % 7; // Monday = 0
+  d.setDate(d.getDate() - weekday);
+  return d;
+}
+
+function startOfThisMonth(): Date {
+  const d = startOfToday();
+  d.setDate(1);
+  return d;
+}
+
+function endOfToday(): Date {
+  const d = startOfToday();
+  d.setHours(23, 59, 0, 0);
+  return d;
+}
+
+function printInvitationRanking(title: string, range: string, ranking: Array<{
+  rankings: number;
+  invitees_count: number;
+  member?: { name?: string; number?: number };
+}>) {
+  console.log(`\n${title}`);
+  console.log(`  区间: ${range}`);
+  if (!ranking.length) {
+    console.log('  (还没有人上榜)');
+    return;
+  }
+  console.log('  排名  成员昵称            编号    邀请人数');
+  for (const item of ranking) {
+    const name = (item.member?.name ?? '?').padEnd(16, ' ');
+    const number = String(item.member?.number ?? '-').padStart(6, ' ');
+    console.log(`  ${String(item.rankings).padStart(2, ' ')}    ${name}  ${number}    ${item.invitees_count}`);
+  }
+}
+
+/**
+ * 测试邀请排行榜：日榜 / 周榜 / 月榜 / 自定义
+ * 对齐 App：日周月只传 begin_time + count + with_extra；自定义再加 end_time
+ */
+async function testRanking(client: ReturnType<typeof ZsxqClientBuilder.prototype.build>, groupId: number) {
+  console.log('\n[Ranking] 邀请排行榜（日/周/月/自定义）');
+  console.log('-'.repeat(40));
+
+  const dailyBegin = formatZsxqTime(startOfToday());
+  const weeklyBegin = formatZsxqTime(startOfThisWeek());
+  const monthlyBegin = formatZsxqTime(startOfThisMonth());
+  const customBegin = dailyBegin;
+  const customEnd = formatZsxqTime(endOfToday());
+
+  try {
+    const daily = await client.ranking.getInvitationRanking(groupId, {
+      begin_time: dailyBegin,
+      count: 10,
+      with_extra: true,
+    });
+    printInvitationRanking('日榜', `${dailyBegin} ~ 当日 23:59`, daily);
+
+    const weekly = await client.ranking.getInvitationRanking(groupId, {
+      begin_time: weeklyBegin,
+      count: 10,
+      with_extra: true,
+    });
+    printInvitationRanking('周榜', `${weeklyBegin} ~ 本周日 23:59`, weekly);
+
+    const monthly = await client.ranking.getInvitationRanking(groupId, {
+      begin_time: monthlyBegin,
+      count: 20,
+      with_extra: true,
+    });
+    printInvitationRanking('月榜', `${monthlyBegin} ~ 本月末 23:59`, monthly);
+
+    const custom = await client.ranking.getInvitationRanking(groupId, {
+      begin_time: customBegin,
+      end_time: customEnd,
+      count: 10,
+      with_extra: true,
+    });
+    printInvitationRanking('自定义', `${customBegin} ~ ${customEnd}（最大 31 天）`, custom);
+  } catch (error) {
+    if (error instanceof ZsxqException) {
+      console.error('✗ 排行榜模块错误:', error.message);
     } else {
       throw error;
     }

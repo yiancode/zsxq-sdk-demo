@@ -2,9 +2,11 @@ package com.zsxq.demo.service;
 
 import com.zsxq.demo.config.ZsxqProperties;
 import com.zsxq.sdk.client.ZsxqClient;
+import com.zsxq.sdk.model.InvitationRankingItem;
 import com.zsxq.sdk.model.RankingItem;
 import com.zsxq.sdk.model.RankingStatistics;
 import com.zsxq.sdk.model.ScoreboardSettings;
+import com.zsxq.sdk.model.User;
 import com.zsxq.sdk.request.RankingRequest;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -16,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -60,8 +65,6 @@ public class ZsxqServiceRankingTest {
         verify(rankingRequest).getGroupRanking(groupId);
     }
 
-    // TODO: 此测试需要 SDK 升级到支持 getGlobalRanking 的版本
-    /*
     @Test
     public void testGetGlobalRanking() {
         String type = "group_sales_list";
@@ -77,7 +80,6 @@ public class ZsxqServiceRankingTest {
         assertEquals(result.get("ranking_list"), Arrays.asList("item1", "item2"));
         verify(rankingRequest).getGlobalRanking(type, count);
     }
-    */
 
     @Test
     public void testGetGroupRankingStats() {
@@ -139,19 +141,76 @@ public class ZsxqServiceRankingTest {
     }
 
     @Test
-    public void testGetInvitationRanking() {
-        long groupId = 600L;
-        RankingItem r1 = new RankingItem();
-        RankingItem r2 = new RankingItem();
-        List<RankingItem> mockRankings = Arrays.asList(r1, r2);
+    public void testGetInvitationRankingRequiresBeginTime() {
+        try {
+            zsxqService.getInvitationRanking(600L, null, null, 10, true);
+            fail("缺少 beginTime 应抛出 IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("beginTime"));
+        }
+        verify(rankingRequest, never()).getInvitationRanking(anyLong(), any());
+    }
 
-        when(rankingRequest.getInvitationRanking(groupId)).thenReturn(mockRankings);
+    @Test
+    public void testGetInvitationRankingDailyStyle() {
+        long groupId = 15555411412112L;
+        String beginTime = "2026-08-22T00:00:00.000+0800";
+        InvitationRankingItem item = new InvitationRankingItem();
+        User member = new User();
+        member.setName("攀登者");
+        member.setNumber(525);
+        item.setMember(member);
+        item.setRankings(1);
+        item.setInviteesCount(48);
+        List<InvitationRankingItem> mockRankings = Arrays.asList(item);
 
-        List<RankingItem> result = zsxqService.getInvitationRanking(groupId);
+        when(rankingRequest.getInvitationRanking(eq(groupId), any(RankingRequest.InvitationRankingOptions.class)))
+                .thenReturn(mockRankings);
+
+        List<InvitationRankingItem> result = zsxqService.getInvitationRanking(groupId, beginTime, null, 10, true);
 
         assertNotNull(result);
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getMember().getName(), "攀登者");
+        verify(rankingRequest).getInvitationRanking(eq(groupId), any(RankingRequest.InvitationRankingOptions.class));
+    }
+
+    @Test
+    public void testGetInvitationRankingCustomRange() {
+        long groupId = 15555411412112L;
+        String beginTime = "2026-08-22T00:00:00.000+0800";
+        String endTime = "2026-08-22T23:59:00.000+0800";
+        when(rankingRequest.getInvitationRanking(eq(groupId), any(RankingRequest.InvitationRankingOptions.class)))
+                .thenReturn(Arrays.asList());
+
+        List<InvitationRankingItem> result = zsxqService.getInvitationRanking(groupId, beginTime, endTime, 10, true);
+
+        assertNotNull(result);
+        assertEquals(result.size(), 0);
+        verify(rankingRequest).getInvitationRanking(eq(groupId), any(RankingRequest.InvitationRankingOptions.class));
+    }
+
+    @Test
+    public void testGetInvitationRankingByPeriodCustomRequiresEndTime() {
+        try {
+            zsxqService.getInvitationRankingByPeriod(600L, "custom", "2026-08-22T00:00:00.000+0800", null);
+            fail("自定义区间缺 endTime 应抛出异常");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("endTime"));
+        }
+        verify(rankingRequest, never()).getInvitationRanking(anyLong(), any());
+    }
+
+    @Test
+    public void testGetInvitationRankingByPeriodWeekly() {
+        long groupId = 15555411412112L;
+        when(rankingRequest.getInvitationRanking(eq(groupId), any(RankingRequest.InvitationRankingOptions.class)))
+                .thenReturn(Arrays.asList(new InvitationRankingItem(), new InvitationRankingItem()));
+
+        List<InvitationRankingItem> result = zsxqService.getInvitationRankingByPeriod(groupId, "weekly", null, null);
+
         assertEquals(result.size(), 2);
-        verify(rankingRequest).getInvitationRanking(groupId);
+        verify(rankingRequest).getInvitationRanking(eq(groupId), any(RankingRequest.InvitationRankingOptions.class));
     }
 
     @Test

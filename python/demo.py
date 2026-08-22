@@ -16,6 +16,7 @@ from zsxq.request import (
     ListTopicsOptions,
     ListCheckinsOptions,
     ListRankingOptions,
+    InvitationRankingOptions,
 )
 
 SEPARATOR = "=" * 60
@@ -54,6 +55,7 @@ async def main():
         await test_topics(client, group_id)
         await test_checkins(client, group_id)
         await test_dashboard(client, group_id)
+        await test_ranking(client, group_id)
 
     print(SEPARATOR)
     print("所有测试完成!")
@@ -202,6 +204,90 @@ async def test_dashboard(client, group_id: int):
     except ZsxqException as e:
         print(f"✗ 数据面板模块错误: {e}")
         print("  (可能需要星主权限)")
+
+
+def _fmt_zsxq_time(dt):
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.000+0800")
+
+
+def _print_invitation_ranking(title, range_text, ranking):
+    print(f"\n{title}")
+    print(f"  区间: {range_text}")
+    if not ranking:
+        print("  (还没有人上榜)")
+        return
+    print("  排名  成员昵称            编号    邀请人数")
+    for item in ranking:
+        name = (item.member.name if item.member else "?")[:16]
+        number = item.member.number if item.member and item.member.number is not None else "-"
+        print(f"  {item.rankings:>2}    {name:<16}  {str(number):>6}    {item.invitees_count}")
+
+
+async def test_ranking(client, group_id: int):
+    """测试邀请排行榜：日榜 / 周榜 / 月榜 / 自定义。
+
+    对齐 App：日周月只传 begin_time + count + with_extra；自定义再加 end_time。
+    """
+    from datetime import datetime, timedelta, timezone
+
+    print("\n[Ranking] 邀请排行榜（日/周/月/自定义）")
+    print("-" * 40)
+
+    tz = timezone(timedelta(hours=8))
+    now = datetime.now(tz)
+    daily_begin = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    weekly_begin = daily_begin - timedelta(days=daily_begin.weekday())
+    monthly_begin = daily_begin.replace(day=1)
+    custom_end = daily_begin.replace(hour=23, minute=59, second=0, microsecond=0)
+
+    try:
+        daily = await client.ranking.get_invitation_ranking(
+            group_id,
+            InvitationRankingOptions(
+                begin_time=_fmt_zsxq_time(daily_begin),
+                count=10,
+                with_extra=True,
+            ),
+        )
+        _print_invitation_ranking("日榜", f"{_fmt_zsxq_time(daily_begin)} ~ 当日 23:59", daily)
+
+        weekly = await client.ranking.get_invitation_ranking(
+            group_id,
+            InvitationRankingOptions(
+                begin_time=_fmt_zsxq_time(weekly_begin),
+                count=10,
+                with_extra=True,
+            ),
+        )
+        _print_invitation_ranking("周榜", f"{_fmt_zsxq_time(weekly_begin)} ~ 本周日 23:59", weekly)
+
+        monthly = await client.ranking.get_invitation_ranking(
+            group_id,
+            InvitationRankingOptions(
+                begin_time=_fmt_zsxq_time(monthly_begin),
+                count=20,
+                with_extra=True,
+            ),
+        )
+        _print_invitation_ranking("月榜", f"{_fmt_zsxq_time(monthly_begin)} ~ 本月末 23:59", monthly)
+
+        custom = await client.ranking.get_invitation_ranking(
+            group_id,
+            InvitationRankingOptions(
+                begin_time=_fmt_zsxq_time(daily_begin),
+                end_time=_fmt_zsxq_time(custom_end),
+                count=10,
+                with_extra=True,
+            ),
+        )
+        _print_invitation_ranking(
+            "自定义",
+            f"{_fmt_zsxq_time(daily_begin)} ~ {_fmt_zsxq_time(custom_end)}（最大 31 天）",
+            custom,
+        )
+
+    except ZsxqException as e:
+        print(f"✗ 排行榜模块错误: {e}")
 
 
 if __name__ == "__main__":

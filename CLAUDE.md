@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 |------|---------|
 | TypeScript | 本地路径 `../../zsxq-sdk/packages/typescript` |
 | Go | 本地路径 replace `../../zsxq-sdk/packages/go` |
-| Java | Maven Central `io.github.yiancode:zsxq-sdk:1.0.0` |
+| Java | Maven Central `io.github.yiancode:zsxq-sdk:1.3.1` |
 | Python | 需手动安装本地 SDK |
 
 **注意**: TypeScript 和 Go 需确保 zsxq-sdk 仓库已克隆到同级目录。

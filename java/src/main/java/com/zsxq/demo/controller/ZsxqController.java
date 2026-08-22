@@ -389,6 +389,7 @@ public class ZsxqController {
 
 
     // 注意: Topics、Checkins、Dashboard、Ranking、Misc 等模块的接口
-    // 已在各自的专门 Controller 中实现 (TopicsController, CheckinsController, DashboardController)
+    // 已在各自的专门 Controller 中实现
+    // (TopicsController, CheckinsController, DashboardController, RankingController)
     // 避免路由冲突,此处不再重复定义
 }

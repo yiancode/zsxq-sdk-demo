@@ -9,6 +9,7 @@ import (
 	"time"
 
 	zsxq "github.com/zsxq-sdk/zsxq-sdk-go"
+	"github.com/zsxq-sdk/zsxq-sdk-go/model"
 	"github.com/zsxq-sdk/zsxq-sdk-go/request"
 )
 
@@ -51,6 +52,7 @@ func main() {
 	testTopics(ctx, client, groupID)
 	testCheckins(ctx, client, groupID)
 	testDashboard(ctx, client, groupID)
+	testRanking(ctx, client, groupID)
 
 	fmt.Println(SEPARATOR)
 	fmt.Println("所有测试完成!")
@@ -252,4 +254,88 @@ func testDashboard(ctx context.Context, client *zsxq.Client, groupID int64) {
 		return
 	}
 	fmt.Printf("✓ GetIncomes() - 收入概览: %v\n", incomes)
+}
+
+func formatZsxqTime(t time.Time) string {
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	return t.In(loc).Format("2006-01-02T15:04:05.000-0700")
+}
+
+func printInvitationRanking(title, rangeText string, ranking []model.InvitationRankingItem) {
+	fmt.Printf("\n%s\n", title)
+	fmt.Printf("  区间: %s\n", rangeText)
+	if len(ranking) == 0 {
+		fmt.Println("  (还没有人上榜)")
+		return
+	}
+	fmt.Println("  排名  成员昵称            编号    邀请人数")
+	for _, item := range ranking {
+		name := "?"
+		number := "-"
+		if item.Member != nil {
+			name = item.Member.Name
+			if item.Member.Number != 0 {
+				number = fmt.Sprintf("%d", item.Member.Number)
+			}
+		}
+		fmt.Printf("  %2d    %-16s  %6s    %d\n", item.Rankings, name, number, item.InviteesCount)
+	}
+}
+
+func invitationOpts(beginTime, endTime string, count int) *request.InvitationRankingOptions {
+	withExtra := true
+	opts := &request.InvitationRankingOptions{
+		BeginTime: beginTime,
+		Count:     count,
+		WithExtra: &withExtra,
+	}
+	if endTime != "" {
+		opts.EndTime = endTime
+	}
+	return opts
+}
+
+// testRanking 测试邀请排行榜：日榜 / 周榜 / 月榜 / 自定义
+func testRanking(ctx context.Context, client *zsxq.Client, groupID int64) {
+	fmt.Println("\n[Ranking] 邀请排行榜（日/周/月/自定义）")
+	fmt.Println(strings.Repeat("-", 40))
+
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	now := time.Now().In(loc)
+	dailyBegin := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	weekday := int(dailyBegin.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+	weeklyBegin := dailyBegin.AddDate(0, 0, -(weekday - 1))
+	monthlyBegin := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, loc)
+	customEnd := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 0, 0, loc)
+
+	daily, err := client.Ranking().GetInvitationRanking(ctx, groupID, invitationOpts(formatZsxqTime(dailyBegin), "", 10))
+	if err != nil {
+		fmt.Printf("✗ 日榜错误: %v\n", err)
+		return
+	}
+	printInvitationRanking("日榜", formatZsxqTime(dailyBegin)+" ~ 当日 23:59", daily)
+
+	weekly, err := client.Ranking().GetInvitationRanking(ctx, groupID, invitationOpts(formatZsxqTime(weeklyBegin), "", 10))
+	if err != nil {
+		fmt.Printf("✗ 周榜错误: %v\n", err)
+		return
+	}
+	printInvitationRanking("周榜", formatZsxqTime(weeklyBegin)+" ~ 本周日 23:59", weekly)
+
+	monthly, err := client.Ranking().GetInvitationRanking(ctx, groupID, invitationOpts(formatZsxqTime(monthlyBegin), "", 20))
+	if err != nil {
+		fmt.Printf("✗ 月榜错误: %v\n", err)
+		return
+	}
+	printInvitationRanking("月榜", formatZsxqTime(monthlyBegin)+" ~ 本月末 23:59", monthly)
+
+	custom, err := client.Ranking().GetInvitationRanking(ctx, groupID, invitationOpts(formatZsxqTime(dailyBegin), formatZsxqTime(customEnd), 10))
+	if err != nil {
+		fmt.Printf("✗ 自定义错误: %v\n", err)
+		return
+	}
+	printInvitationRanking("自定义", formatZsxqTime(dailyBegin)+" ~ "+formatZsxqTime(customEnd)+"（最大 31 天）", custom)
 }

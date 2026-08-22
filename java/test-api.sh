@@ -184,7 +184,10 @@ test_api "获取星球排行统计" "$BASE_URL/ranking/groups/$GROUP_ID/statisti
 test_api "获取积分排行榜" "$BASE_URL/ranking/groups/$GROUP_ID/score"
 test_api "获取我的积分统计" "$BASE_URL/ranking/groups/$GROUP_ID/score/my-statistics"
 test_api "获取积分榜设置" "$BASE_URL/ranking/groups/$GROUP_ID/scoreboard/settings"
-test_api "获取邀请排行榜" "$BASE_URL/ranking/groups/$GROUP_ID/invitations"
+test_api "邀请排行日榜" "$BASE_URL/ranking/groups/$GROUP_ID/invitations?period=daily"
+test_api "邀请排行周榜" "$BASE_URL/ranking/groups/$GROUP_ID/invitations?period=weekly"
+test_api "邀请排行月榜" "$BASE_URL/ranking/groups/$GROUP_ID/invitations?period=monthly"
+test_api "邀请排行自定义" "$BASE_URL/ranking/groups/$GROUP_ID/invitations?period=custom&beginTime=2026-08-22T00:00:00.000%2B0800&endTime=2026-08-22T23:59:00.000%2B0800"
 test_api "获取贡献排行榜" "$BASE_URL/ranking/groups/$GROUP_ID/contributions"
 echo ""
 

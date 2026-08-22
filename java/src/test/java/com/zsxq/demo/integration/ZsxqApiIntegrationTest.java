@@ -445,6 +445,34 @@ public class ZsxqApiIntegrationTest {
     }
 
     @Test
+    @Order(22)
+    @DisplayName("8.1 邀请排行榜 - 周榜")
+    public void testGetInvitationRankingWeekly() throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/zsxq/ranking/groups/" + GROUP_ID + "/invitations")
+                        .param("period", "weekly"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray())
+                .andReturn();
+        System.out.println("✓ 邀请排行周榜: " + result.getResponse().getContentAsString());
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("8.2 邀请排行榜 - 自定义区间")
+    public void testGetInvitationRankingCustom() throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/zsxq/ranking/groups/" + GROUP_ID + "/invitations")
+                        .param("period", "custom")
+                        .param("beginTime", "2026-08-22T00:00:00.000+0800")
+                        .param("endTime", "2026-08-22T23:59:00.000+0800"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray())
+                .andReturn();
+        System.out.println("✓ 邀请排行自定义: " + result.getResponse().getContentAsString());
+    }
+
+    @Test
     @Order(21)
     @DisplayName("7.7 性能测试 - 响应时间验证")
     public void testResponseTimeValidation() throws Exception {

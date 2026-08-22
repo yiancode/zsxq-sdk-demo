@@ -5,16 +5,7 @@
 echo "=== 知识星球 SDK Spring Boot Demo ==="
 echo ""
 
-# 检查 SDK jar 是否存在
-SDK_JAR="../../zsxq-sdk/packages/java/target/zsxq-sdk-1.0.0.jar"
-if [ ! -f "$SDK_JAR" ]; then
-    echo "错误: SDK jar 不存在: $SDK_JAR"
-    echo "请先构建 SDK:"
-    echo "  cd ../../zsxq-sdk/packages/java && mvn clean package"
-    exit 1
-fi
-
-echo "✓ SDK jar 已找到"
+echo "✓ 使用 Maven Central zsxq-sdk 1.3.1"
 echo ""
 
 # 构建项目

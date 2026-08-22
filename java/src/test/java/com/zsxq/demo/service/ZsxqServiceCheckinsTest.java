@@ -82,7 +82,7 @@ public class ZsxqServiceCheckinsTest {
         long checkinId = 400L;
         Checkin mockCheckin = new Checkin();
         mockCheckin.setCheckinId(checkinId);
-        mockCheckin.setName("TestCheckin");
+        mockCheckin.setTitle("TestCheckin");
 
         when(checkinsRequest.get(groupId, checkinId)).thenReturn(mockCheckin);
 
@@ -90,7 +90,7 @@ public class ZsxqServiceCheckinsTest {
 
         assertNotNull(result);
         assertEquals(result.getCheckinId().longValue(), checkinId);
-        assertEquals(result.getName(), "TestCheckin");
+        assertEquals(result.getTitle(), "TestCheckin");
         verify(checkinsRequest).get(groupId, checkinId);
     }
 
@@ -239,7 +239,7 @@ public class ZsxqServiceCheckinsTest {
 
         Checkin mockCheckin = new Checkin();
         mockCheckin.setCheckinId(2001L);
-        mockCheckin.setName("测试训练营");
+        mockCheckin.setTitle("测试训练营");
 
         when(checkinsRequest.create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class)))
                 .thenReturn(mockCheckin);
@@ -248,7 +248,7 @@ public class ZsxqServiceCheckinsTest {
 
         assertNotNull(result);
         assertEquals(result.getCheckinId().longValue(), 2001L);
-        assertEquals(result.getName(), "测试训练营");
+        assertEquals(result.getTitle(), "测试训练营");
         verify(checkinsRequest).create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class));
     }
 
@@ -264,7 +264,7 @@ public class ZsxqServiceCheckinsTest {
 
         Checkin mockCheckin = new Checkin();
         mockCheckin.setCheckinId(2002L);
-        mockCheckin.setName("长期训练营");
+        mockCheckin.setTitle("长期训练营");
 
         when(checkinsRequest.create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class)))
                 .thenReturn(mockCheckin);
@@ -273,7 +273,7 @@ public class ZsxqServiceCheckinsTest {
 
         assertNotNull(result);
         assertEquals(result.getCheckinId().longValue(), 2002L);
-        assertEquals(result.getName(), "长期训练营");
+        assertEquals(result.getTitle(), "长期训练营");
         verify(checkinsRequest).create(eq(groupId), any(CheckinsRequest.CreateCheckinParams.class));
     }
 }

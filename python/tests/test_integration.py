@@ -17,6 +17,7 @@ from zsxq.request import (
     ListTopicsOptions,
     ListCheckinsOptions,
     ListRankingOptions,
+    InvitationRankingOptions,
 )
 
 
@@ -296,6 +297,27 @@ class IntegrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(digests)
 
         print("✓ 完整业务流程测试通过")
+
+    async def test_ranking_invitation(self):
+        """Ranking: get_invitation_ranking() - 获取邀请排行榜"""
+        ranking = await self.client.ranking.get_invitation_ranking(
+            self.group_id,
+            InvitationRankingOptions(
+                begin_time="2026-08-17T00:00:00.000+0800",
+                count=10,
+                with_extra=True,
+            ),
+        )
+        self.assertIsNotNone(ranking)
+        self.assertIsInstance(ranking, list)
+        if ranking:
+            top = ranking[0]
+            self.assertIsNotNone(top.member)
+            self.assertGreater(top.rankings, 0)
+            self.assertGreaterEqual(top.invitees_count, 0)
+            print(f"✓ 邀请排行榜: {len(ranking)} 人, 第1名={top.member.name} 邀请 {top.invitees_count} 人")
+        else:
+            print("✓ 邀请排行榜为空列表")
 
     async def test_error_recovery(self):
         """错误处理: 错误后客户端应该仍然可用"""

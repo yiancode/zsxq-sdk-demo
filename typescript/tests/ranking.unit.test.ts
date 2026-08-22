@@ -137,10 +137,32 @@ describe('Ranking Module Unit Tests', () => {
   });
 
   describe('getInvitationRanking() - 获取邀请排行榜', () => {
-    it('应该成功返回邀请排行榜', async () => {
-      const ranking = await client.ranking.getInvitationRanking(testGroupId);
+    it('周榜应对齐 App：begin_time + count + with_extra', async () => {
+      const ranking = await client.ranking.getInvitationRanking(testGroupId, {
+        begin_time: '2026-08-17T00:00:00.000+0800',
+        count: 10,
+        with_extra: true,
+      });
 
-      // 验证返回数据结构
+      expect(ranking).toBeDefined();
+      expect(Array.isArray(ranking)).toBe(true);
+      if (ranking.length > 0) {
+        expect(ranking[0].member).toBeDefined();
+        expect(ranking[0].member.user_id).toBeDefined();
+        expect(ranking[0].member.name).toBeDefined();
+        expect(typeof ranking[0].rankings).toBe('number');
+        expect(typeof ranking[0].invitees_count).toBe('number');
+      }
+    });
+
+    it('自定义区间应额外传 end_time', async () => {
+      const ranking = await client.ranking.getInvitationRanking(testGroupId, {
+        begin_time: '2026-08-22T00:00:00.000+0800',
+        end_time: '2026-08-22T23:59:00.000+0800',
+        count: 10,
+        with_extra: true,
+      });
+
       expect(ranking).toBeDefined();
       expect(Array.isArray(ranking)).toBe(true);
     });
@@ -149,7 +171,11 @@ describe('Ranking Module Unit Tests', () => {
       const invalidGroupId = 999999999999999;
 
       await expect(
-        client.ranking.getInvitationRanking(invalidGroupId)
+        client.ranking.getInvitationRanking(invalidGroupId, {
+          begin_time: '2026-08-17T00:00:00.000+0800',
+          count: 10,
+          with_extra: true,
+        })
       ).rejects.toThrow();
     });
   });

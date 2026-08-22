@@ -8,13 +8,14 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../zsxq-sdk/packages/python"))
 
+import pytest_asyncio
 from zsxq import ZsxqClientBuilder, ZsxqException
 
 
 class TestRankingUnit:
     """Ranking 模块单元测试类"""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def client(self):
         client = ZsxqClientBuilder().set_token("test-token").set_timeout(10).build()
         await client.__aenter__()
@@ -93,15 +94,69 @@ class TestRankingUnit:
     async def test_get_invitation_ranking_success(self, client):
         """测试 get_invitation_ranking() 获取邀请排行榜"""
         group_id = 123
-        mock_ranking = [MagicMock(user_id=1, invitations=50)]
+        mock_member = MagicMock()
+        mock_member.user_id = 15514225885222
+        mock_member.name = "华峰（兄）"
+        mock_item = MagicMock()
+        mock_item.member = mock_member
+        mock_item.rankings = 1
+        mock_item.invitees_count = 8
+        mock_ranking = [mock_item]
 
-        with patch.object(client.ranking, 'get_invitation_ranking', new_callable=AsyncMock) as mock_ranking:
-            mock_ranking.return_value = mock_ranking
+        with patch.object(client.ranking, 'get_invitation_ranking', new_callable=AsyncMock) as mock_method:
+            mock_method.return_value = mock_ranking
 
             result = await client.ranking.get_invitation_ranking(group_id)
 
             assert len(result) == 1
-            assert result[0].invitations == 50
+            assert result[0].rankings == 1
+            assert result[0].invitees_count == 8
+            assert result[0].member.name == "华峰（兄）"
+            mock_method.assert_called_once_with(group_id)
+
+    @pytest.mark.asyncio
+    async def test_get_invitation_ranking_weekly_style(self, client):
+        """日/周/月榜：begin_time + count + with_extra，不传 end_time"""
+        from zsxq.request import InvitationRankingOptions
+
+        group_id = 15555411412112
+        options = InvitationRankingOptions(
+            begin_time="2026-08-17T00:00:00.000+0800",
+            count=10,
+            with_extra=True,
+        )
+        mock_ranking = [MagicMock(rankings=1, invitees_count=48)]
+
+        with patch.object(client.ranking, 'get_invitation_ranking', new_callable=AsyncMock) as mock_method:
+            mock_method.return_value = mock_ranking
+
+            result = await client.ranking.get_invitation_ranking(group_id, options)
+
+            assert len(result) == 1
+            assert result[0].invitees_count == 48
+            mock_method.assert_called_once_with(group_id, options)
+
+    @pytest.mark.asyncio
+    async def test_get_invitation_ranking_custom_range(self, client):
+        """自定义区间额外传 end_time"""
+        from zsxq.request import InvitationRankingOptions
+
+        group_id = 15555411412112
+        options = InvitationRankingOptions(
+            begin_time="2026-08-22T00:00:00.000+0800",
+            end_time="2026-08-22T23:59:00.000+0800",
+            count=10,
+            with_extra=True,
+        )
+        mock_ranking = []
+
+        with patch.object(client.ranking, 'get_invitation_ranking', new_callable=AsyncMock) as mock_method:
+            mock_method.return_value = mock_ranking
+
+            result = await client.ranking.get_invitation_ranking(group_id, options)
+
+            assert result == []
+            mock_method.assert_called_once_with(group_id, options)
 
     @pytest.mark.asyncio
     async def test_get_contribution_ranking_success(self, client):

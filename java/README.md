@@ -22,7 +22,8 @@ src/main/java/com/zsxq/demo/
 │   ├── ZsxqController.java        # 星球和用户 API
 │   ├── TopicsController.java      # 话题 API
 │   ├── CheckinsController.java    # 打卡 API
-│   └── DashboardController.java   # 数据面板 API
+│   ├── DashboardController.java   # 数据面板 API
+│   └── RankingController.java     # 排行榜 API
 ├── service/
 │   ├── ZsxqService.java           # 星球和用户服务
 │   ├── TopicsService.java         # 话题服务
@@ -67,6 +68,12 @@ curl "http://localhost:8080/api/zsxq/topics/groups/15555411412112?count=5"
 
 # 获取数据概览
 curl http://localhost:8080/api/zsxq/dashboard/groups/15555411412112/overview
+
+# 邀请排行：日榜 / 周榜 / 月榜 / 自定义（自定义最大 31 天）
+curl "http://localhost:8080/api/zsxq/ranking/groups/15555411412112/invitations?period=daily"
+curl "http://localhost:8080/api/zsxq/ranking/groups/15555411412112/invitations?period=weekly"
+curl "http://localhost:8080/api/zsxq/ranking/groups/15555411412112/invitations?period=monthly"
+curl "http://localhost:8080/api/zsxq/ranking/groups/15555411412112/invitations?period=custom&beginTime=2026-08-22T00:00:00.000%2B0800&endTime=2026-08-22T23:59:00.000%2B0800"
 ```
 
 ## API 接口
@@ -99,6 +106,16 @@ curl http://localhost:8080/api/zsxq/dashboard/groups/15555411412112/overview
 
 - `GET /api/zsxq/dashboard/groups/{groupId}/overview` - 获取数据概览
 - `GET /api/zsxq/dashboard/groups/{groupId}/incomes` - 获取收入概览
+
+### 排行榜
+
+- `GET /api/zsxq/ranking/groups/{groupId}` - 获取星球排行榜
+- `GET /api/zsxq/ranking/groups/{groupId}/statistics` - 获取星球排行统计
+- `GET /api/zsxq/ranking/groups/{groupId}/score` - 获取积分排行榜
+- `GET /api/zsxq/ranking/groups/{groupId}/score/my-statistics` - 获取我的积分统计
+- `GET /api/zsxq/ranking/groups/{groupId}/scoreboard/settings` - 获取积分榜设置
+- `GET /api/zsxq/ranking/groups/{groupId}/invitations` - 邀请排行榜（`period=daily|weekly|monthly|custom`；自定义需 `beginTime`/`endTime`）
+- `GET /api/zsxq/ranking/groups/{groupId}/contributions` - 获取贡献排行榜
 
 ## 配置说明
 
@@ -136,7 +153,7 @@ mvn test -Dtest=ZsxqApiIntegrationTest
 ## 依赖
 
 - Spring Boot 2.7.18
-- zsxq-sdk 1.0.0
+- zsxq-sdk 1.3.1
 - OkHttp 4.12.0
 - Gson 2.10.1
 - Lombok 1.18.34
